@@ -1,4 +1,5 @@
 require 'pgp/packet/packet'
+require 'pgp/packet/userattrsubpacket'
 
 
 module PGP
