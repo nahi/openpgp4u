@@ -47,12 +47,3 @@ end
 
 end
 end
-
-
-if __FILE__ == $0
-  require 'pgp/packet'
-  d = PGP::Packet::PublicSubkeyRSA.new(1)       # RSA Encrypt or Sign
-  d.keycreated = Time.now
-  p d.dump
-end
-

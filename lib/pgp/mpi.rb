@@ -79,11 +79,3 @@ end
 
 
 end
-
-
-if __FILE__ == $0
-  p PGP::MPI.encode(511)
-  p PGP::MPI.decode(PGP::MPI.encode(511))
-  p PGP::MPI.encode(65537)
-  p PGP::MPI.decode(PGP::MPI.encode(65537))
-end
