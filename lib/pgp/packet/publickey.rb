@@ -29,6 +29,10 @@ class PublicKey < Key
     super(6, algorithm)
   end
 
+  def as_primarykey
+    self
+  end
+
 private
 
   def dump_body

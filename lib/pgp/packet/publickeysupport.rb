@@ -14,6 +14,7 @@
 
 
 require 'pgp/pkeyalgorithm'
+require 'pgp/hashalgorithm'
 
 
 module PGP
@@ -59,6 +60,14 @@ module PublicKeySupport
 
   def decrypt(cipher)
     public_decrypt(cipher)
+  end
+
+  def keyfingerprint
+    HashAlgorithm.calc(2, as_primarykey.dump)
+  end
+
+  def keyid
+    keyfingerprint[-8, 8]
   end
 
 private
