@@ -115,7 +115,7 @@ module PKeyAlgorithm
   end
 
   def self.decode_sessionkey(data)
-    rnd, algorithm, rest = data.scan(/\A\000\002([^\000]+)\000(.)(.+)\z/)[0]
+    rnd, algorithm, rest = data.scan(/\A\000\002([^\000]+)\000([\x00-\xff])([\x00-\xff]*)\z/)[0]
     algorithm = algorithm.unpack("C")[0]
     sessionkey = rest[0..-3]
     checksum = MPI.from_bytes(rest[-2..-1])
