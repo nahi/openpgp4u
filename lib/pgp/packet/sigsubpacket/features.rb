@@ -38,7 +38,7 @@ private
 
   def self.loader(port, length)
     flags = load_1octet(port)
-    port.read(3)        # TBD: ignore
+    port.read(length - 1)        # TBD: ignore
     new(flags)
   end
 
