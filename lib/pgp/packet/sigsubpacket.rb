@@ -1,0 +1,14 @@
+require 'pgp/packet/sigsubpacket/creationtime'                  # Tag 2
+require 'pgp/packet/sigsubpacket/expirationtime'                # Tag 3
+require 'pgp/packet/sigsubpacket/revocable'                     # Tag 7
+require 'pgp/packet/sigsubpacket/keyexpirationtime'             # Tag 9
+require 'pgp/packet/sigsubpacket/preferredskeyalgorithm'        # Tag 11
+require 'pgp/packet/sigsubpacket/issuerkeyid'                   # Tag 16
+require 'pgp/packet/sigsubpacket/preferredhashalgorithm'        # Tag 21
+require 'pgp/packet/sigsubpacket/preferredcompressionalgorithm' # Tag 22
+require 'pgp/packet/sigsubpacket/keyserverpreferences'          # Tag 23
+require 'pgp/packet/sigsubpacket/primaryuserid'                 # Tag 25
+require 'pgp/packet/sigsubpacket/keyflags'                      # Tag 27
+require 'pgp/packet/sigsubpacket/reasonforrevocation'           # Tag 29
+require 'pgp/packet/sigsubpacket/features'                      # Tag 30
+require 'pgp/packet/sigsubpacket/internal'                      # Tag 100-110
