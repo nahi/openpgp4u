@@ -98,7 +98,10 @@ class Packet
   end
 
   def self.load(port)
-    length = load_length_new(port)
+    length, partial = load_length_new(port)
+    if partial
+      raise "Partial Body Lengths not allowed"
+    end
     type = load_type(port)
     critical = type & T_CRITICAL
     type &= ~T_CRITICAL

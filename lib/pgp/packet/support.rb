@@ -113,14 +113,14 @@ module Support
     def load_length_new(port)
       octet1 = load_1octet(port)
       if octet1 <= 191
-        octet1
+        return octet1, false
       elsif octet1 <= 223
         octet2 = load_1octet(port)
-        ((octet1 - 192) << 8) + octet2 + 192
+        return ((octet1 - 192) << 8) + octet2 + 192, false
       elsif octet1 == 255
-        load_4octet(port)
-      else
-        raise "Unknown format"
+        return load_4octet(port), false
+      else      # Partial Body Length
+        return (1 << (octet1 & 0x1f)), true
       end
     end
   end

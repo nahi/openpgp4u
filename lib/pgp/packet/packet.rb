@@ -89,8 +89,17 @@ class Packet
   def self.load(port)
     loadport = wrap_port(port)
     packets = []
+    continue = false
     while !loadport.eof?
-      newheader, tag, lengthdefined = load_header(loadport)
+      if continue
+        lengthdefined, partial = load_length_new(loadport)
+      else
+        newheader, tag, lengthdefined, partial = load_header(loadport)
+      end
+      if partial and continue
+        raise "Partial Body Lengths packet not supported"
+      end
+      continue = partial
       initpos = loadport.readlength
       unless TAG_LOADER.key?(tag)
         raise "Not supported: #{tag}"
@@ -111,13 +120,32 @@ class Packet
     else
       dumpport = IndentDumpPort.for(io)
     end
+    continue = false
     loadport = wrap_port(port)
     while !loadport.eof?
       initpos = nil
       begin
-        newheader, tag, lengthdefined = load_header(loadport)
+        if continue
+          lengthdefined, partial = load_length_new(loadport)
+        else
+          newheader, tag, lengthdefined, partial = load_header(loadport)
+        end
         newtag = newheader ? "New" : "Old"
-        dumpport.puts "#{newtag}: #{taglabel(tag)}(tag #{tag})(#{lengthdefined} bytes)\n"
+        if partial
+          if continue
+            dumpport.puts "#{newtag}(partial continue): - (tag #{tag})(#{lengthdefined} bytes)"
+            loadport.read(lengthdefined)
+            next
+          else
+            newtag += '(partial start)'
+          end
+        else
+          if continue
+            newtag += '(partial end)'
+          end
+        end
+        continue = partial
+        dumpport.puts "#{newtag}: #{taglabel(tag)}(tag #{tag})(#{lengthdefined} bytes)"
         initpos = loadport.readlength
         dumpport.indent(4) do
           unless TAG_SCANNER.key?(tag)
@@ -174,12 +202,13 @@ private
 
   def self.load_header(port)
     v = load_1octet(port)
+    partial = false
     if (H_BASE & v).zero?
       raise "Illegal PGP packet (#{H_BASE} must be always one): #{v}"
     end
     if (H_FORMAT_MASK & v).nonzero?
       tag = H_NEW_TAG_MASK & v
-      length = load_length_new(port)
+      length, partial = load_length_new(port)
       newheader = true
     else
       tag = (H_OLD_TAG_MASK & v) >> 2
@@ -187,7 +216,7 @@ private
       length = load_length_old(port, lengthtype)
       newheader = false
     end
-    return [newheader, tag, length]
+    return [newheader, tag, length, partial]
   end
 
   def self.add_loader(tag, method)
