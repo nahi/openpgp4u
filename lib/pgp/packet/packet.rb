@@ -29,6 +29,7 @@ class Packet
   extend Support::ModuleSupport
 
   TAGS = {
+    -1 => "Partial",
     0 => "Reserved",
     1 => "Public-Key Encrypted Session Key Packet",
     2 => "Signature Packet",
@@ -87,19 +88,19 @@ class Packet
   end
 
   def self.load(port)
-    loadport = wrap_port(port)
     packets = []
     continue = false
+    newheader = false
+    tag = nil
+    loadport = wrap_port(port)
     while !loadport.eof?
       if continue
-        lengthdefined, partial = load_length_new(loadport)
-      else
-        newheader, tag, lengthdefined, partial = load_header(loadport)
+        lengthdefined, continue = load_length_new(loadport)
+        packet = Partial.loader(loadport, lengthdefined)
+        packets << packet
+        next
       end
-      if partial and continue
-        raise "Partial Body Lengths packet not supported"
-      end
-      continue = partial
+      newheader, tag, lengthdefined, continue = load_header(loadport)
       initpos = loadport.readlength
       unless TAG_LOADER.key?(tag)
         raise "Not supported: #{tag}"
@@ -121,31 +122,31 @@ class Packet
       dumpport = IndentDumpPort.for(io)
     end
     continue = false
+    newheader = false
+    tag = nil
     loadport = wrap_port(port)
     while !loadport.eof?
       initpos = nil
       begin
         if continue
-          lengthdefined, partial = load_length_new(loadport)
-        else
-          newheader, tag, lengthdefined, partial = load_header(loadport)
-        end
-        newtag = newheader ? "New" : "Old"
-        if partial
+          lengthdefined, continue = load_length_new(loadport)
+          newtag = newheader ? "New" : "Old"
           if continue
-            dumpport.puts "#{newtag}(partial continue): - (tag #{tag})(#{lengthdefined} bytes)"
-            loadport.read(lengthdefined)
-            next
+            newtag += '(partial continue)'
           else
-            newtag += '(partial start)'
+            newtag += '(partial end     )'
           end
-        else
-          if continue
-            newtag += '(partial end)'
-          end
+          dumpport.puts "#{newtag}: - (tag #{tag})(#{lengthdefined} bytes)"
+          Partial.scanner(dumpport, loadport, lengthdefined)
+          next
         end
-        continue = partial
-        dumpport.puts "#{newtag}: #{taglabel(tag)}(tag #{tag})(#{lengthdefined} bytes)"
+        newheader, tag, lengthdefined, continue = load_header(loadport)
+        newtag = newheader ? "New" : "Old"
+        if continue
+          newtag += '(partial start   )'
+        end
+        dumpport.puts "#{newtag}: #{taglabel(tag)}(tag #{tag})" +
+          "(#{lengthdefined} bytes)"
         initpos = loadport.readlength
         dumpport.indent(4) do
           unless TAG_SCANNER.key?(tag)
