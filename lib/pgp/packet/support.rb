@@ -74,14 +74,6 @@ module Support
       port.read(4).unpack("N")[0]
     end
 
-    def load_version(port)
-      version = load_1octet(port)
-      if version != 4
-        raise "Not supported"
-      end
-      version
-    end
-
     def load_keyid(port)
       port.read(8)
     end
