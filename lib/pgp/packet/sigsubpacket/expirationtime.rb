@@ -28,12 +28,12 @@ class ExpirationTime < Packet
   end
 
   def time=(time)
-    @time = Time.at(time.to_i)
+    @time = time.to_i
   end
 
   def scan(io)
     super
-    io.puts "Time - #{@time}"
+    io.puts "Time - #{@time / 3600 / 24} days (#{@time} secs)"
   end
 
 private
