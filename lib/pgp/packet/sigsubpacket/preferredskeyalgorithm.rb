@@ -18,7 +18,7 @@ class PreferredSkeyAlgorithm < Packet
   def scan(io)
     super
     @algorithm.each do |algo|
-      io.puts SKeyAlgorithm.label(algo)
+      io.puts "#{SKeyAlgorithm.label(algo)}(#{algo})"
     end
   end
 

@@ -102,18 +102,24 @@ class Packet
     packet
   end
 
-  def self.scan(port, io = STDOUT)
+  def self.scan(port, io)
     length = load_length_new(port)
     type = load_type(port)
     critical = (type & T_CRITICAL).nonzero?
     type &= ~T_CRITICAL
     critlabel = critical ? "Critical" : "Non-critical"
-    io.puts "#{critlabel} Sub: #{typelabel(type)}(#{type})(#{length - 1} bytes)\n"
-    if !TAG_SCANNER.key?(type) and critical
+    io.puts "#{critlabel} Sub: #{typelabel(type)}(#{type})(#{length - 1} bytes)"
+    if TAG_SCANNER.key?(type)
+      io.indent(4) do
+        TAG_SCANNER[type].call(io, port, length - 1)
+      end
+    elsif critical
       raise "Not supported: #{type}"
-    end
-    io.indent(4) do
-      TAG_SCANNER[type].call(io, port, length - 1)
+    else
+      io.indent(4) do
+        io.puts "(unknown sub packet)"
+      end
+      port.read(length - 1)
     end
   end
 

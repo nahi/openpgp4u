@@ -18,7 +18,7 @@ class PreferredHashAlgorithm < Packet
   def scan(io)
     super
     @algorithm.each do |algo|
-      io.puts HashAlgorithm.label(algo)
+      io.puts "#{HashAlgorithm.label(algo)}(#{algo})"
     end
   end
 

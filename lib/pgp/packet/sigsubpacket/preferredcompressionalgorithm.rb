@@ -18,7 +18,7 @@ class PreferredCompressionAlgorithm < Packet
   def scan(io)
     super
     @algorithm.each do |algo|
-      io.puts CompressionAlgorithm.label(algo)
+      io.puts "#{CompressionAlgorithm.label(algo)}(#{algo})"
     end
   end
 
