@@ -47,6 +47,8 @@ module PKeyAlgorithm
       "m**d mod n - #{MPI.nbits(signature)} bits"
     when 17
       "r - #{MPI.nbits(signature[0])} bits, s - #{MPI.nbits(signature[1])} bits"
+    when 16, 20
+      "??? (#{signature.size} bytes)"
     else
       raise "Not supported: #{algorithm}"
     end
