@@ -24,7 +24,13 @@ class Packet
     109 => "private or experimental use",
     110 => "private or experimental use",
   }
+
+  def self.typelabel(type)
+    TYPES[type]
+  end
+
   TAG_LOADER = {}
+  TAG_SCANNER = {}
 
   def initialize(type = nil)
     self.type = type
@@ -35,6 +41,13 @@ class Packet
       raise "Unknown type: #{type}"
     end
     @type = type
+  end
+
+  def typelabel
+    Packet.typelabel(@type)
+  end
+
+  def scan(io)
   end
 
   def dump
@@ -51,6 +64,18 @@ class Packet
     TAG_LOADER[type].call(port, length - 1)
   end
 
+  def self.scan(port, io)
+    length = load_length_new(port)
+    type = load_type(port)
+    io.puts "Sub: #{typelabel(type)}(#{type})(#{length - 1} bytes)"
+    unless TAG_SCANNER.key?(type)
+      raise "Not supported: #{type}"
+    end
+    io.indent(4) do
+      TAG_SCANNER[type].call(io, port, length - 1)
+    end
+  end
+
 private
 
   def dump_body
@@ -61,12 +86,24 @@ private
     load_1octet(port)
   end
 
-  def self.add_loader(type, method)
-    TAG_LOADER[type] = method
+  def self.add_loader(tag, method)
+    if tag.is_a?(Enumerable)
+      tag.each do |tagitem|
+        TAG_LOADER[tagitem] = method
+      end
+    else
+      TAG_LOADER[tag] = method
+    end
   end
 
-  def self.scanner(port, length)
-    loader(port, length).summary
+  def self.add_scanner(tag, method)
+    if tag.is_a?(Enumerable)
+      tag.each do |tagitem|
+        TAG_SCANNER[tagitem] = method
+      end
+    else
+      TAG_SCANNER[tag] = method
+    end
   end
 end
 

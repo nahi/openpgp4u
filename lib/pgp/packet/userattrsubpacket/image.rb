@@ -1,9 +1,9 @@
-require 'pgp/packet/sigsubpacket/packet'
+require 'pgp/packet/userattrsubpacket/packet'
 
 
 module PGP
 module Packet
-module SigSubPacket
+module UserAttrSubPacket
 
 
 class Image < Packet
@@ -17,6 +17,12 @@ class Image < Packet
   attr_accessor :version
   attr_accessor :format
   attr_accessor :body
+
+  def scan(io)
+    super
+    io.puts "Version - #{@version}"
+    io.puts "Format - #{@format}"
+  end
 
 private
 
@@ -33,7 +39,7 @@ private
   end
 
   def self.scanner(io, port, length)
-    loader(port, length).summary
+    loader(port, length).scan(io)
   end
 
   def self.load_image_header(packet, port)
@@ -43,15 +49,15 @@ private
     when 1
       load_image_version_1(packet, port)
     else
-      raise "Not supported"
+      raise "Not supported: #{packet.version}"
     end
   end
 
   def self.load_image_version_1(packet, port)
     packet.format = load_1octet(port)
     header_rest = port.read(12)
-    if port.read(12) != "\000" * 12
-      raise "Illegal image header (version 1)"
+    if header_rest != "\000" * 12
+      raise "Illegal image header (version 1): #{header_rest}"
     end
   end
 
@@ -67,10 +73,8 @@ private
     load_1octet(port)
   end
 
-  def self.load_image_header(port)
-
-  add_loader(2, method(:loader))
-  add_scanner(2, method(:scanner))
+  add_loader(1, method(:loader))
+  add_scanner(1, method(:scanner))
 end
 
 
