@@ -41,6 +41,8 @@ require 'pgp/packet/publicsubkeyelgamal'                #        (Elgamal)
 require 'pgp/packet/userattribute'                      # Tag 17
 require 'pgp/packet/symencryptedintegrityprotecteddata' # Tag 18 and 19
 
+require 'pgp/packet/partial'
+
 
 module PGP
 
