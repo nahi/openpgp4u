@@ -21,10 +21,13 @@ class IndentDumpPort
   end
 
   def indent(size, &block)
-    record = @indent
-    @indent += size
-    yield
-    @indent = record
+    begin
+      record = @indent
+      @indent += size
+      yield
+    ensure
+      @indent = record
+    end
   end
 end
 
