@@ -94,21 +94,29 @@ class Packet
     end
     loadport = wrap_port(port)
     while !loadport.eof?
-      newheader, tag, lengthdefined = load_header(loadport)
-      newtag = newheader ? "New" : "Old"
-      dumpport.puts "#{newtag}: #{taglabel(tag)}(tag #{tag})(#{lengthdefined} bytes)\n"
-      initpos = loadport.readlength
-      dumpport.indent(4) do
-        unless TAG_SCANNER.key?(tag)
-          dumpport.puts format("Not supported", 4)
-          loadport.read(lengthdefined)    # skip
-        else
-          TAG_SCANNER[tag].call(dumpport, loadport, lengthdefined)
-          readlength = loadport.readlength - initpos
-          if readlength != lengthdefined
-            raise "Parsing failed: #{readlength}/#{lengthdefined}"
+      initpos = nil
+      begin
+        newheader, tag, lengthdefined = load_header(loadport)
+        newtag = newheader ? "New" : "Old"
+        dumpport.puts "#{newtag}: #{taglabel(tag)}(tag #{tag})(#{lengthdefined} bytes)\n"
+        initpos = loadport.readlength
+        dumpport.indent(4) do
+          unless TAG_SCANNER.key?(tag)
+            dumpport.puts format("Not supported", 4)
+            loadport.read(lengthdefined)    # skip
+          else
+            TAG_SCANNER[tag].call(dumpport, loadport, lengthdefined)
+            readlength = loadport.readlength - initpos
+            if readlength != lengthdefined
+              raise "Parsing failed: #{readlength}/#{lengthdefined}"
+            end
           end
         end
+      rescue
+        STDERR.puts $!.message
+        STDERR.puts $!.backtrace
+        io.puts "!!! #{$!.message} - skip this packet !!!"
+        loadport.read(lengthdefined - (loadport.readlength - initpos))
       end
     end
   end
