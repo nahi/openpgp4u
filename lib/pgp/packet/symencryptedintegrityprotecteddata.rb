@@ -28,12 +28,13 @@ class SymEncryptedIntegrityProtectedData < Packet
     @cipher = nil
   end
 
+  attr_accessor :version
   attr_accessor :cipher
-
   attr_accessor :plain
 
   def scan(io)
     super
+    io.puts "Version - #{@version}"
     io.puts "Encrypted data + MDC SHA1(20 bytes)"
   end
 
