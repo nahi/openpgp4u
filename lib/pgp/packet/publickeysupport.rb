@@ -92,6 +92,10 @@ private
     def load_algorithm(port)
       load_1octet(port)
     end
+
+    def load_version(port)
+      load_1octet(port)
+    end
   end
 end
 
