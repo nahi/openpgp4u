@@ -106,7 +106,7 @@ private
   end
 
   def dump_key_material_checksum
-    dump_2octet(self.key_material_secret_checksum)
+    self.key_material_secret_checksum
   end
 
   def self.calc_key_material_secret_checksum(body)
