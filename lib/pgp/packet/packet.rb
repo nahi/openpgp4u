@@ -45,8 +45,12 @@ class Packet
     13 => "User ID Packet",
     14 => "Public Subkey Packet",
     17 => "User Attribute Packet",
-    18 => "Symmetrically Encrypted and MDC Packet",
+    18 => "Sym. Encrypted and Integrity Protected Data Packet",
     19 => "Modification Detection Code Packet",
+    60 => "Private or Experimental Values",
+    61 => "Private or Experimental Values",
+    62 => "Private or Experimental Values",
+    63 => "Private or Experimental Values",
   }
 
   def self.taglabel(tag)
