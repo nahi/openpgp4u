@@ -93,7 +93,7 @@ class Packet
       end
       packet = TAG_LOADER[tag].call(loadport, lengthdefined)
       readlength = loadport.readlength - initpos
-      if readlength != lengthdefined
+      if lengthdefined and readlength != lengthdefined
         raise "Parsing failed: #{readlength}/#{lengthdefined}"
       end
       packets << packet
@@ -122,7 +122,7 @@ class Packet
           else
             TAG_SCANNER[tag].call(dumpport, loadport, lengthdefined)
             readlength = loadport.readlength - initpos
-            if readlength != lengthdefined
+            if lengthdefined and readlength != lengthdefined
               raise "Parsing failed: #{readlength}/#{lengthdefined}"
             end
           end
