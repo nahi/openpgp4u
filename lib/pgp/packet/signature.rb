@@ -106,6 +106,18 @@ class Signature < Packet
     @unhashedsubpacket
   end
 
+  def verify(pubkey, target)
+    packed_decoded_hash = MPI.to_bytes(pubkey.decrypt(@signature))
+    decoded_hash = PKeyAlgorithm.decode_hash(@pkey_algorithm, pubkey.nbits, 
+      @hash_algorithm, packed_decoded_hash)
+
+    hashed_body = dump_version + dump_signature_type + dump_pkey_algorithm +
+      dump_hash_algorithm + dump_hashedsubpacket
+    calced_hash = calc_hash(target + dump_hash_magic(hashed_body))
+
+    decoded_hash == calced_hash
+  end
+
 private
 
   def dump_body
