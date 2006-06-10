@@ -169,11 +169,11 @@ module PKeyAlgorithm
   #   v = M1 + M3 * p
   def self.rsa_secret(packet, input)
     require 'openssl'
-    input = OpenSSL::BN.new(input)
-    d = OpenSSL::BN.new(packet.d)
-    p = OpenSSL::BN.new(packet.p)
-    q = OpenSSL::BN.new(packet.q)
-    u = OpenSSL::BN.new(packet.u)
+    input = OpenSSL::BN.new(input.to_s)
+    d = OpenSSL::BN.new(packet.d.to_s)
+    p = OpenSSL::BN.new(packet.p.to_s)
+    q = OpenSSL::BN.new(packet.q.to_s)
+    u = OpenSSL::BN.new(packet.u.to_s)
     m1 = input.mod_exp(d % (p - 1), p)
     m2 = input.mod_exp(d % (q - 1), q)
     m3 = u.mod_mul(m2 - m1, q)
@@ -183,9 +183,9 @@ module PKeyAlgorithm
   # M^e (mod n)
   def self.rsa_public(packet, input)
     require 'openssl'
-    input = OpenSSL::BN.new(input)
-    e = OpenSSL::BN.new(packet.e)
-    n = OpenSSL::BN.new(packet.n)
+    input = OpenSSL::BN.new(input.to_s)
+    e = OpenSSL::BN.new(packet.e.to_s)
+    n = OpenSSL::BN.new(packet.n.to_s)
     (input.mod_exp(e, n)).to_i
   end
 
